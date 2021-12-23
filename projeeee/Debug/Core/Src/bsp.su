@@ -1,0 +1,16 @@
+core_cm0plus.h:741:22:__NVIC_EnableIRQ	16	static,ignoring_inline_asm
+core_cm0plus.h:850:22:__NVIC_SetPriority	24	static
+bsp.c:22:6:BSP_systemInit	8	static
+bsp.c:39:6:resetAllSSDDigits	8	static
+bsp.c:46:6:setSSDDigit	16	static
+bsp.c:76:6:dispNumberDigitInSSD	16	static
+bsp.c:208:6:delay	16	static
+bsp.c:213:6:setRCCForSSD	8	static
+bsp.c:219:6:setMODERForSSD	8	static
+bsp.c:246:6:setRCCForKeypad	8	static
+bsp.c:251:6:setMODERForKeypad	8	static
+bsp.c:278:6:setInterruptForKeypad	8	static
+bsp.c:311:6:clearAllKeypadRows	8	static
+bsp.c:318:6:setAllKeypadRows	8	static
+bsp.c:325:13:detectButton	16	static
+bsp.c:398:6:setKeypadRow	16	static

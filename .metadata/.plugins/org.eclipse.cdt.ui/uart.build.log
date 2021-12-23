@@ -1,0 +1,18 @@
+23:34:00 **** Build of configuration Debug for project uart ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32G030xx -c -I../Core/Inc -I../Drivers/STM32G0xx_HAL_Driver/Inc -I../Drivers/STM32G0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32G0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "uart.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\stm32\uart\STM32G030K8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="uart.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\bin\ld.exe: ./Core/Src/main.o: in function `UART_init':
+C:/stm32/uart/Debug/../Core/Src/main.c:11: multiple definition of `UART_init'; ./Core/Src/bsp.o:C:/stm32/uart/Debug/../Core/Src/bsp.c:105: first defined here
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\bin\ld.exe: ./Core/Src/main.o: in function `uart_tx':
+C:/stm32/uart/Debug/../Core/Src/main.c:37: multiple definition of `uart_tx'; ./Core/Src/bsp.o:C:/stm32/uart/Debug/../Core/Src/bsp.c:89: first defined here
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\bin\ld.exe: ./Core/Src/main.o: in function `uart_rx':
+C:/stm32/uart/Debug/../Core/Src/main.c:41: multiple definition of `uart_rx'; ./Core/Src/bsp.o:C:/stm32/uart/Debug/../Core/Src/bsp.c:95: first defined here
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\bin\ld.exe: ./Core/Src/stm32g0xx_it.o: in function `SysTick_Handler':
+C:/stm32/uart/Debug/../Core/Src/stm32g0xx_it.c:127: multiple definition of `SysTick_Handler'; ./Core/Src/main.o:C:/stm32/uart/Debug/../Core/Src/main.c:5: first defined here
+collect2.exe: error: ld returned 1 exit status
+make: *** [makefile:65: uart.elf] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+23:34:06 Build Failed. 9 errors, 0 warnings. (took 5s.407ms)
+

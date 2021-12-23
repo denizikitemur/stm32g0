@@ -1,0 +1,10 @@
+19:30:36 **** Build of configuration Debug for project standalone ****
+make -j8 all 
+arm-none-eabi-size   standalone.elf 
+   text	   data	    bss	    dec	    hex	filename
+    260	     12	      0	    272	    110	standalone.elf
+Finished building: default.size.stdout
+ 
+
+19:30:36 Build Finished. 0 errors, 0 warnings. (took 255ms)
+

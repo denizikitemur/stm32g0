@@ -1,0 +1,132 @@
+/*
+ * bsp.c
+ *
+ *  Created on: Dec 1, 2021
+ *      Author: antih
+ */
+#include "stm32g0xx.h"
+#include "bsp.h"
+static int arr[256]={8000,8196,8393,8589,8784,8979,9174,9368,9561,9753,9944,10134,10322,10509,10695,10879,11061,11242,11420,11597,11771,11943,12113,12280,12445,12606,12766,12922,13075,13225,13372,13516,13657,13794,13928,14058,14184,14307,14426,14541,14652,14759,14862,14961,15055,15146,15232,15314,15391,15464,
+		15532,15596,15656,15710,15760,15806,15846,15882,15913,15940,15961,15978,15990,15998,16000,15998,15990,15978,15961,15940,15913,15882,15846,15806,15760,15710,15656,15596,15532,15464,15391,15314,15232,15146,15055,14961,14862,14759,14652,14541,14426,14307,14184,14058,13928,13794,13657,13516,13372,13225,
+		13075,12922,12766,12606,12445,12280,12113,11943,11771,11597,11420,11242,11061,10879,10695,10509,10322,10134,9944,9753,9561,9368,9174,8979,8784,8589,8393,8196,8000,7804,7607,7411,7216,7021,6826,6632,6439,6247,6056,5866,5678,5491,5305,5121,4939,4758,4580,4403,4229,4057,
+		3887,3720,3555,3394,3234,3078,2925,2775,2628,2484,2343,2206,2072,1942,1816,1693,1574,1459,1348,1241,1138,1039,945,854,768,686,609,536,468,404,344,290,240,194,154,118,87,60,39,22,10,2,0,2,10,22,39,60,87,118,
+		154,194,240,290,344,404,468,536,609,686,768,854,945,1039,1138,1241,1348,1459,1574,1693,1816,1942,2072,2206,2343,2484,2628,2775,2925,3078,3234,3394,3555,3720,3887,4057,4229,4403,4580,4758,4939,5121,5305,5491,5678,5866,6056,6247,6439,6632,
+		6826,7021,7216,7411,7607,7804,8000};
+
+#define LEDDELAY    160000
+
+static volatile uint32_t tick = 0;
+
+void system_init(){
+
+	__disable_irq();
+	init_pwm2();
+	__enable_irq();
+}
+
+
+//INITILIZE ONBOARD LED CONNECTED TO PC6 PIN AND CONFIGURATION
+void onboardLed_Set(){
+    /* Enable GPIOC clock */
+    RCC->IOPENR |= (1U << 2);
+    /* Setup PC6 as output for onboard led*/
+    GPIOC->MODER &= ~(3U << 2*6);
+    GPIOC->MODER |= (1U << 2*6);
+}
+void onboardLed_TurnOn(){
+    /* Turn on LED */
+    GPIOC->ODR |= (1U << 6);
+}
+void onboardLed_TurnOff(){
+    /* Turn on LED */
+    GPIOC->BRR |= (1U << 6);
+}
+void onboardLed_Toggle(){
+    /* Turn on LED */
+    GPIOC->ODR ^= (1U << 6);
+}
+
+
+//INITILIZE BUTTON CONNECTED TO PA5 PIN
+
+void button_set(){
+    /* Enable GPIOA clock */
+    RCC->IOPENR |= (1U << 0);
+	//Set PA5 as input
+	GPIOA->MODER &= ~(3U << 2*5);
+}
+//RETURNS 1 IF BUTTONS PRESSED
+int button_read(){
+	int b = ((GPIOA->IDR >>5 ) & 0X1);
+	if(b)
+		return 0;
+	else return 1;
+}
+
+//BUTTON WITH EXTERNAL INTERRUPTS
+void button_interrupt(){
+	//Set PA5 as input
+	EXTI->RTSR1 |= (1U << 5);
+	EXTI->EXTICR[5] |= (1U << 8*5);
+	EXTI->IMR1 |= (1U << 5);
+
+	NVIC_SetPriority(EXTI4_15_IRQn, 0);
+	NVIC_EnableIRQ(EXTI4_15_IRQn);
+}
+
+//PWM MEWZULARI
+
+void TIM2_IRQHandler(void){
+
+	TIM2->SR &= ~(1U << 0);
+}
+
+void init_pwm2(){
+	//WORKING WITH PB3 PIN'S AF2 FUNCTION AS TIM2_CH2
+	//enable gpiob
+	RCC->IOPENR |= (1U << 1);
+	//enable tim2 clock
+	RCC->APBENR1 |= RCC_APBENR1_TIM2EN;
+
+
+	//select AF from moder
+	GPIOB->MODER &= ~(3U << 2*3);
+	GPIOB->MODER |= (2U << 2*3);
+	//set alternate function 2 // 0010 FOR AF2
+	GPIOB->AFR[0] &= ~(0XFU << 4*3);
+	GPIOB->AFR[0] |= (2U << 4*3);
+
+
+
+    // zero out the control register just in case
+	TIM2->CR1 = 0;
+
+    // Select PWM Mode 1
+    TIM2->CCMR1 |= (6U << 12);
+    // Preload Enable
+    TIM2->CCMR1 |= TIM_CCMR1_OC2PE;
+
+    // Capture compare ch2 enable
+    TIM2->CCER |= TIM_CCER_CC2E;
+
+    // zero out counter
+    TIM2->CNT = 0;
+    // 1 ms interrupt
+    TIM2->PSC =15;
+    TIM2->ARR = 99;
+
+    // zero out duty
+int i;
+for(i=0; i<100; i++){
+    TIM2->CCR2 = i;
+}
+    // Update interrupt enable
+    TIM2->DIER |= (1 << 0);
+
+    // TIM1 Enable
+    TIM2->CR1 |= TIM_CR1_CEN;
+
+    NVIC_SetPriority(TIM2_IRQn, 1);
+    NVIC_EnableIRQ(TIM2_IRQn);
+
+}

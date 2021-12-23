@@ -1,0 +1,11 @@
+10:59:32 **** Incremental Build of configuration Debug for project sayac ****
+make -j8 all 
+arm-none-eabi-gcc -o "sayac.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\stm32\sayac\STM32G030K8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="sayac.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+c:\st\stm32cubeide_1.7.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346\tools\arm-none-eabi\bin\ld.exe: ./Core/Startup/startup_stm32g030k8tx.o: in function `LoopFillZerobss':
+C:/stm32/sayac/Debug/../Core/Startup/startup_stm32g030k8tx.s:100: undefined reference to `main'
+collect2.exe: error: ld returned 1 exit status
+make: *** [makefile:65: sayac.elf] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+10:59:34 Build Failed. 3 errors, 0 warnings. (took 1s.447ms)
+

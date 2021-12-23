@@ -1,0 +1,16 @@
+sevensegment.c:50:6:SSD_getDigits	16	static
+sevensegment.c:95:6:SSD_setAmp	8	static
+sevensegment.c:106:6:SSD_setFreq	8	static
+sevensegment.c:116:6:SSD_setSine	8	static
+sevensegment.c:126:6:SSD_setTri	8	static
+sevensegment.c:137:6:SSD_setSquare	8	static
+sevensegment.c:144:6:SSD_setRamp	8	static
+sevensegment.c:151:6:SSD_setWhiteNoise	8	static
+sevensegment.c:158:6:SSD_setRandDigital	8	static
+sevensegment.c:166:6:SSD_disp	8	static
+sevensegment.c:193:6:SSD_dispNumberDigit	16	static
+sevensegment.c:207:6:SSD_setAllDigits	8	static
+sevensegment.c:215:6:SSD_resetAllDigits	8	static
+sevensegment.c:222:6:SSD_setDigit	16	static
+sevensegment.c:252:6:SSD_setRCC	8	static
+sevensegment.c:259:6:SSD_setMODER	8	static

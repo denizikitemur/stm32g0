@@ -1,0 +1,5 @@
+1639573940952	Delete resource 'proje/Core/Src/stm32g0xx_hal_msp.c'
+1639573947700	Delete resource 'proje/Core/Src/stm32g0xx_it.c'
+1639573953260	Delete resource 'proje/Core/Src/syscalls.c'
+1639573957701	Delete resource 'proje/Core/Src/sysmem.c'
+1639573962258	Delete resource 'proje/Core/Src/system_stm32g0xx.c'

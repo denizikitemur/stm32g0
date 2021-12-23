@@ -1,0 +1,14 @@
+core_cm0plus.h:741:22:__NVIC_EnableIRQ	16	static,ignoring_inline_asm
+core_cm0plus.h:850:22:__NVIC_SetPriority	24	static
+core_cm0plus.h:1056:26:SysTick_Config	16	static
+BSP.c:20:6:BSP_systemInit	8	static
+BSP.c:31:6:BSP_initializeOnBoardLed	8	static
+BSP.c:43:6:BSP_setOnBoardLed	8	static
+BSP.c:47:6:BSP_resetOnBoardLed	8	static
+BSP.c:51:6:BSP_toggleOnBoardLed	8	static
+BSP.c:56:6:BSP_initializeAndConfigSysTickTimer	16	static
+BSP.c:61:6:BSP_initializeAndConfigClock	8	static
+BSP.c:67:6:BSP_Timer3_Config	16	static
+BSP.c:86:6:BSP_Timer2_Config	8	static
+BSP.c:104:6:BSP_initializeInterruptForButton	8	static
+BSP.c:123:6:BSP_initializeButton	8	static

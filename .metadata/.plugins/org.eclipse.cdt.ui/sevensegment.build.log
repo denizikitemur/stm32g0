@@ -1,0 +1,10 @@
+23:53:28 **** Incremental Build of configuration Debug for project sevensegment ****
+make -j8 all 
+arm-none-eabi-size   sevensegment.elf 
+   text	   data	    bss	    dec	    hex	filename
+   1584	     12	   1572	   3168	    c60	sevensegment.elf
+Finished building: default.size.stdout
+ 
+
+23:53:29 Build Finished. 0 errors, 0 warnings. (took 945ms)
+

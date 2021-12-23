@@ -1,0 +1,30 @@
+#include "stm32g0xx.h"
+#include "bsp.h"
+
+#define LEDDELAY    160000
+void delay(volatile uint32_t);
+
+int main(void) {
+
+	system_init();
+
+	while(1){
+
+	}
+
+ return 0;
+
+}
+void delay(volatile uint32_t s){
+	for(; s>0; s--);
+
+}
+
+
+/*
+void delay_ms(volatile unsigned int s){
+for(int i=s; i>0; i--){
+SysTick_Config(SystemCoreClock / 1000);
+}
+}
+*/

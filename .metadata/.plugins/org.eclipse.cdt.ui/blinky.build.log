@@ -1,0 +1,7 @@
+03:54:45 **** Build of configuration Debug for project blinky ****
+make -j8 all 
+make: *** No rule to make target 'C:/stm32/include/system_stm32g0xx.c', needed by 'system_stm32g0xx.o'.  Stop.
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+03:54:46 Build Failed. 1 errors, 0 warnings. (took 186ms)
+

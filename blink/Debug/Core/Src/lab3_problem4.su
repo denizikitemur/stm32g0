@@ -1,0 +1,6 @@
+lab3_problem4.c:20:6:EXTI0_1_IRQHandler	8	static
+lab3_problem4.c:26:6:EXTI2_3_IRQHandler	8	static
+lab3_problem4.c:34:6:EXTI4_15_IRQHandler	8	static
+lab3_problem4.c:41:5:main	16	static
+lab3_problem4.c:72:6:doWorkForButton	8	static
+lab3_problem4.c:79:6:test	16	static

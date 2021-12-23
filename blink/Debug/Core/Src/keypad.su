@@ -1,0 +1,9 @@
+core_cm0plus.h:741:22:__NVIC_EnableIRQ	16	static,ignoring_inline_asm
+core_cm0plus.h:850:22:__NVIC_SetPriority	24	static
+keypad.c:10:6:setRCCForKeypad	8	static
+keypad.c:15:6:setMODERForKeypad	8	static
+keypad.c:42:6:setInterruptForKeypad	8	static
+keypad.c:75:6:clearAllKeypadRows	8	static
+keypad.c:82:6:setAllKeypadRows	8	static
+keypad.c:89:13:detectButton	16	static
+keypad.c:162:6:setKeypadRow	16	static

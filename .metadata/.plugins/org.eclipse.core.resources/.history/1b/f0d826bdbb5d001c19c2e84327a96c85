@@ -1,0 +1,92 @@
+#include "stm32g0xx.h"
+#include <math.h>
+
+int button;
+void delay(volatile uint32_t);
+volatile int counter = 0;
+int buttonx[4];
+
+
+
+
+
+void genlik(){
+
+
+
+}
+
+
+
+
+
+
+void EXTI0_1_IRQHandler() {
+	button = detectButton();
+
+	EXTI -> RPR1 |= (1 << 0);
+}
+
+void EXTI2_3_IRQHandler() {
+
+		button = detectButton();
+		EXTI -> RPR1 |= (1 << 2);
+
+}
+
+void EXTI4_15_IRQHandler() {
+	//Burda önce A mı B mi ona bakacaz
+	button = detectButton();
+	EXTI -> RPR1 |= (1 << 8);
+	EXTI -> RPR1 |= (1 << 9);
+}
+
+
+
+int main(void) {
+	setRCCForSSD();
+	setMODERForSSD();
+
+	setRCCForKeypad();
+	setMODERForKeypad();
+	setInterruptForKeypad();
+
+	setAllKeypadRows();
+	resetAllSSDDigits();
+	int genlik,freq;
+	if(button==10){
+		genlik = number();
+
+	}
+	else if(button==11){
+		freq = number();
+	}
+
+    return 0;
+}
+
+int number(){
+	int i=0;
+	int j;
+	button = -1;
+	for( i = 1 ; i < 5 ; i++){
+		button = detectButton();
+	if(button == 0 || button == 1 || button == 2 || button == 3 || button == 4 || button == 5 || button == 6 || button == 7 || button == 8 || button == 9 || button == 10 || button == 11|| button == 12 || button == 13 || button == 14 || button == 15){
+			buttonx[i] = detectButton();
+			delay(1000000);
+			dispNumberDigitInSSD((uint8_t) button, (uint8_t) i );
+			delay(1000000);
+			button = -1;
+	}
+	}
+			if(i >= 4){
+				while(1){
+		for(j = 1; j < 5; j++){
+						dispNumberDigitInSSD((uint8_t) buttonx[j], (uint8_t) j );
+						delay(1000);
+		}
+		}
+		}
+
+	return ((buttonx[0] * 10^0) + (buttonx[1] * 10^1) + (buttonx[2] * 10^2) + (buttonx[3] * 10^3));
+}

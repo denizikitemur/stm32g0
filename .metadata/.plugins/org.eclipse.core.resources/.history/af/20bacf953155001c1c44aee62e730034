@@ -1,0 +1,89 @@
+/*
+ * main.c
+ *
+ * author: Saddam
+ *
+ * description: making a C4 BOMB
+ */
+
+#include "stm32g0xx.h"
+//#include <math.h>
+#include "sevensegment.h"
+#include "keypad.h"
+
+void delay(volatile uint32_t);
+void test();
+void doWorkForButton();
+
+keypadBut_t button;
+
+void EXTI0_1_IRQHandler() {
+	button = detectButton();
+	doWorkForButton();
+	EXTI -> RPR1 |= (1 << 0);
+}
+
+void EXTI2_3_IRQHandler() {
+	/*
+		button = detectButton();
+		doWorkForButton();
+	*/
+	EXTI -> RPR1 |= (1 << 2);
+}
+
+void EXTI4_15_IRQHandler() {
+	button = detectButton();
+	doWorkForButton();
+	EXTI -> RPR1 |= (1 << 8);
+	EXTI -> RPR1 |= (1 << 9);
+}
+
+
+
+int main(void) {
+	setRCCForSSD();
+	setMODERForSSD();
+
+	setRCCForKeypad();
+	setMODERForKeypad();
+	setInterruptForKeypad();
+
+	setAllKeypadRows();
+
+	digitsSSD[0] = 0;
+	digitsSSD[1] = 0;
+	digitsSSD[2] = 0;
+	digitsSSD[3] = 0;
+
+	while(1){
+
+
+		doWorkForButton();
+		dispNumberDigitInSSD((uint8_t) button, (uint8_t) 4);
+				delay(1000000);
+				dispNumberDigitInSSD((uint8_t) button, (uint8_t) 3);
+				delay(1000000);
+				dispNumberDigitInSSD((uint8_t) button, (uint8_t) 2);
+				delay(1000000);
+				dispNumberDigitInSSD((uint8_t) button, (uint8_t) 1);
+						delay(1000000);
+
+
+	}
+
+
+
+
+
+    return 0;
+}
+
+void doWorkForButton(){
+	//**** doWorkForButton
+	static int i = 0;
+	digitsSSD[i % 4] = button;
+	i++;
+}
+
+
+

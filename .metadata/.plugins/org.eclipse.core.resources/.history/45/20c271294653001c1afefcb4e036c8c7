@@ -1,0 +1,275 @@
+#include "sevensegment.h"
+#include "stm32g0xx.h"
+#include <stdlib.h>
+#include <math.h>
+
+
+void setAllSSDDigits() {
+	// ALL DIGIT ODR
+	DIGIT_1_P -> ODR |= DIGIT_1;
+	DIGIT_2_P -> ODR |= DIGIT_2;
+	DIGIT_3_P -> ODR |= DIGIT_3;
+	DIGIT_4_P -> ODR |= DIGIT_4;
+}
+
+void resetAllSSDDigits() {
+	DIGIT_1_P -> ODR &= ~DIGIT_1;
+	DIGIT_2_P -> ODR &= ~DIGIT_2;
+	DIGIT_3_P -> ODR &= ~DIGIT_3;
+	DIGIT_4_P -> ODR &= ~DIGIT_4;
+}
+
+void setSSDDigit(uint8_t digit) {
+   /*
+    * 		   D1	=>	PA7
+	* 		   D2	=>	PB3
+	* 		   D3	=>	PA10
+	* 		   D4	=>	PB1
+    */
+
+	// önce hepsini kapat
+
+	// **** //
+
+	switch(digit) {
+	case 1:
+		DIGIT_1_P -> ODR |= DIGIT_1;
+		break;
+	case 2:
+		DIGIT_2_P -> ODR |= DIGIT_2;
+		break;
+	case 3:
+		DIGIT_3_P -> ODR |= DIGIT_3;
+		break;
+	case 4:
+		DIGIT_4_P -> ODR |= DIGIT_4;
+		break;
+	default:
+		break;
+	}
+}
+
+void dispNumberDigitInSSD(uint8_t zeroToTen, uint8_t SSDDigit) {
+	setSSDDigit(SSDDigit);
+
+	SEGMENT_P -> ODR |= SSD_CLEAR;
+	switch(zeroToTen){
+	case 0:
+		SEGMENT_P -> ODR &= SSD_ZERO;
+		break;
+	case 1:
+		SEGMENT_P -> ODR &= SSD_ONE;
+		break;
+	case 2:
+		SEGMENT_P -> ODR &= SSD_TWO;
+		break;
+	case 3:
+		SEGMENT_P -> ODR &= SSD_THREE;
+		break;
+	case 4:
+		SEGMENT_P -> ODR &= SSD_FOUR;
+		break;
+	case 5:
+		SEGMENT_P -> ODR &= SSD_FIVE;
+		break;
+	case 6:
+		SEGMENT_P -> ODR &= SSD_SIX;
+		break;
+	case 7:
+		SEGMENT_P -> ODR &= SSD_SEVEN;
+		break;
+	case 8:
+		SEGMENT_P -> ODR &= SSD_EIGHT;
+		break;
+	case 9:
+		SEGMENT_P -> ODR &= SSD_NINE;
+		break;
+	case 10:
+		SEGMENT_P -> ODR &= SSD_M_HYPEN;
+	}
+}
+
+
+//Loopun içinde çağırman lazım.
+int dispNumberInSSD(int32_t val){
+	int16_t len = countDigits(val);
+	if(len > 4) {
+		return -1;
+	}
+
+	getDigits(val);
+
+	if(val < 0 && len > 3) {
+		return -1;
+	}
+
+	if(val < 0) {
+		digitsSSD[3] = digitsSSD[2];
+		digitsSSD[2] = digitsSSD[1];
+		digitsSSD[1] = digitsSSD[0];
+		digitsSSD[0] = 10;
+	}
+
+	dispNumberDigitInSSD(digitsSSD[0], 1);
+	delay(DELAY_FOR_SSD);
+	dispNumberDigitInSSD(digitsSSD[1], 2);
+	delay(DELAY_FOR_SSD);
+	dispNumberDigitInSSD(digitsSSD[2], 3);
+	delay(DELAY_FOR_SSD);
+	dispNumberDigitInSSD(digitsSSD[3], 4);
+	delay(DELAY_FOR_SSD);
+	return 0;
+}
+
+//Loopun içinde çağırman lazım.
+//digitsSSD ile gösterir.
+void dispArrayInSSD(){
+		dispNumberDigitInSSD(digitsSSD[0], 1);
+		delay(DELAY_FOR_SSD);
+		dispNumberDigitInSSD(digitsSSD[1], 2);
+		delay(DELAY_FOR_SSD);
+		dispNumberDigitInSSD(digitsSSD[2], 3);
+		delay(DELAY_FOR_SSD);
+		dispNumberDigitInSSD(digitsSSD[3], 4);
+		delay(DELAY_FOR_SSD);
+}
+
+
+// PINLERE GORE AYARLAMAN LAZIM
+void setRCCForSSD() {
+	// A ve B pinlerini aç
+	RCC -> IOPENR |= (3U);
+}
+
+// PINLERE GORE AYARLAMAN LAZIM
+void setMODERForSSD() {
+	// A için (SADECE SSD PINLERI)
+	// 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+	// xx xx xx 01 01 01 xx xx 01 01 01 01 xx xx 01 01  lazım
+	// 00 00 00	01 01 01 00 00 01 01 01 01 00 00 01 01 = 0x1505505  orlamak için
+	// 11 11 11	01 01 01 11 11 01 01 01 01 11 11 01 01 = 0xFD5F55F5 andlemek için
+	GPIOA -> MODER |= (uint32_t) (0x1505505);
+	GPIOA -> MODER &= (uint32_t) (0xFD5F55F5);
+
+	// B için (SADECE SSD PINLERI)
+	// 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+	// xx xx xx xx xx xx xx xx xx xx xx xx 01 xx 01 xx
+	// 	  								   01 00 01 00 = 0x44 orlamak için
+	// 11 11 11 11 11 11 11 11 11 11 11 11 01 11 01 11 = 0xFFFFFF77 andlemek için
+	GPIOB -> MODER |= (uint32_t) (0x44);
+	GPIOB -> MODER &= (uint32_t) (0xFFFFFF77);
+}
+
+//**** UTIL ****//
+void getDigits(int32_t val){
+		int16_t len = countDigits(val);
+		val = abs(val);
+
+		for (int16_t i = (int16_t) (len - 1); i >= 0; digitsSSD[i--] = (uint8_t)(val % 10), val /= 10){}
+}
+
+int16_t countDigits(int32_t val){
+	return val == 0 ? (int16_t) 1 : (int16_t) (log10(abs(val)) + 1);
+}
+#define LEDDELAY    1600000
+#define TRUE		(1)
+#define FALSE		(0)
+
+void delay(volatile uint32_t);
+
+enum MODE {mode0 = 0, mode1 = 1600000 , mode2 = 800000, mode3 = 160000,
+	mode4 = 16000, mode5 = 1600};
+
+volatile enum MODE currentMode = mode0;
+
+void delayForModes(volatile enum MODE);
+
+void EXTI0_1_IRQHandler() {
+	// doWorkForButton
+	switch(currentMode) {
+		case mode0:
+			currentMode = mode1;
+			break;
+
+		case mode1:
+			currentMode = mode2;
+			break;
+
+		case mode2:
+			currentMode = mode3;
+			break;
+
+		case mode3:
+			currentMode = mode4;
+			break;
+
+		case mode4:
+			currentMode = mode5;
+			break;
+
+		case mode5:
+			currentMode = mode0;
+			break;
+	}
+	// ***** //
+
+	EXTI -> RPR1 |= (1U);
+}
+
+int main(void) {
+	/* SET RCC */
+	// button -> PB0
+	RCC -> IOPENR |= (1U);
+	// **** //
+	/* SET MODER */
+	// 01 xx xx xx 00 olmalı
+	// 10 00 00 00 11 => 515
+	GPIOB -> MODER &= ~515U;
+	// 01 00 00 00 00 =>
+	GPIOB -> MODER |= (1U << 2 * 4);
+	// **** //
+	GPIOB -> PUPDR |= (2U << 0*2);
+	/* External Interrupt ayarları */
+	// rising edge'de yakalamak istediğim için RTSR1
+	// PA0 yani 0. porta bağlı olduğu için 0. portu birledik.
+	EXTI -> RTSR1 |= (1U << 0);
+	EXTI -> EXTICR[0] &= ~(3U);
+	EXTI -> IMR1 |= (1U);
+	NVIC_SetPriority(EXTI0_1_IRQn, 0);
+	NVIC_EnableIRQ(EXTI0_1_IRQn);
+	setRCCForSSD();
+	setMODERForSSD();
+	digitsSSD[0] = 0;
+	digitsSSD[1] = 0;
+	digitsSSD[2] = 0;
+	digitsSSD[3] = 0;
+
+	int val;
+
+	while(1){
+		 for(int l = 2; l >= 0; l-- ){
+			 dispNumberDigitInSSD(l, (uint8_t) 1);
+			 delay(DELAY_FOR_SSD);
+			 for(int k = 4; k >= 0; k-- ){
+				 dispNumberDigitInSSD(k, (uint8_t) 2);
+				 delay(DELAY_FOR_SSD);
+				for(int j = 5; j >= 0; j-- ){
+					dispNumberDigitInSSD(j, (uint8_t) 3);
+					delay(DELAY_FOR_SSD);
+					for(int i = 9; i >= 0; i-- ){
+					dispNumberDigitInSSD(i, (uint8_t) 4);
+					delay(DELAY_FOR_SSD);
+					}
+				}
+			}
+		 }
+		}
+    return 0;
+}
+void delayForModes(volatile enum MODE mode) {
+	 for(volatile uint32_t s = mode; s > 0; s--) {}
+}
+void delay(volatile uint32_t s) {
+    for(; s>0; s--);
+}
+

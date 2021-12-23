@@ -1,0 +1,24 @@
+16:57:49 **** Incremental Build of configuration Debug for project proje ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/keypad.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32G031xx -c -I../Core/Inc -I../Drivers/STM32G0xx_HAL_Driver/Inc -I../Drivers/STM32G0xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32G0xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/keypad.d" -MT"Core/Src/keypad.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/keypad.o"
+../Core/Src/keypad.c: In function 'KEY_detectButton':
+../Core/Src/keypad.c:93:2: warning: implicit declaration of function 'KEY_setRow'; did you mean 'KEY_setRCC'? [-Wimplicit-function-declaration]
+   93 |  KEY_setRow(1);
+      |  ^~~~~~~~~~
+      |  KEY_setRCC
+../Core/Src/keypad.c: At top level:
+../Core/Src/keypad.c:177:13: warning: conflicting types for 'KEY_setRow'
+  177 | static void KEY_setRow(uint8_t key) {
+      |             ^~~~~~~~~~
+../Core/Src/keypad.c:177:13: error: static declaration of 'KEY_setRow' follows non-static declaration
+../Core/Src/keypad.c:93:2: note: previous implicit declaration of 'KEY_setRow' was here
+   93 |  KEY_setRow(1);
+      |  ^~~~~~~~~~
+../Core/Src/keypad.c:177:13: warning: 'KEY_setRow' defined but not used [-Wunused-function]
+  177 | static void KEY_setRow(uint8_t key) {
+      |             ^~~~~~~~~~
+make: *** [Core/Src/subdir.mk:28: Core/Src/keypad.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+16:57:50 Build Failed. 2 errors, 3 warnings. (took 368ms)
+

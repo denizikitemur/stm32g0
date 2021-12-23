@@ -1,0 +1,108 @@
+/*
+ * main.c
+ *
+ * author: Eda Mislina AKSAN
+ *
+ * description: Using a state machine blink the external LED at different intervals. Assign each speed to a mode, and attach a button to cycle through the modes.
+ */
+
+#include "stm32g0xx.h"
+
+#define LEDDELAY1    1600000
+#define LEDDELAY2	 3200000
+#define LEDDELAY5    8000000
+
+void delay(volatile uint32_t);
+
+int main(void) {
+
+    /* Enable GPIOA clock */
+    RCC->IOPENR |= (1U << 0);
+
+    /* Enable GPIOB clock */
+    RCC->IOPENR |= (1U << 1);
+
+    //Set up PB5 as output
+    GPIOB->MODER &= ~(3U << 2*5);
+    GPIOB->MODER |= (1U << 2*5);
+
+    //Set PA5 as input
+    GPIOA->MODER &= ~(3U << 2*5);
+
+    //Defining an enum for the states
+    enum ButtonMode{ mode0, mode1, mode2, mode3, mode4, mode5};
+
+
+
+    while(1) {
+    	enum ButtonMode mode;
+    	mode= mode0;
+
+    	int value = GPIOA->IDR &= (1U << 5);
+
+    	    	    if (value == 0x20){ //0010 0000
+    	    			if(mode == mode5) //If code at the last mode, change to first mode
+    	    				mode = mode0;
+    	    			else
+    	    				mode += mode; //Change mode
+    	    		}//if(value)
+
+    	 switch(mode){
+
+    	 case mode0:
+    		 GPIOB->ODR &=(0U << 5);
+    		 mode += mode;
+    		 break;
+
+    	 case mode1:
+    		 GPIOB->ODR |= (1U << 5);
+    		 delay(LEDDELAY2);
+    		 GPIOB->ODR &=(0U << 5);
+    		 delay(LEDDELAY2);
+
+    		 break;
+
+    	 case mode2:
+
+    		 GPIOB->ODR |= (1U << 5);
+    		 delay(LEDDELAY1);
+    		 GPIOB->ODR &=(0U << 5);
+    		 delay(LEDDELAY1);
+
+    		 break;
+
+    	 case mode3:
+    		 GPIOB->ODR |= (1U << 5);
+    		 delay(LEDDELAY5);
+    		 GPIOB->ODR &=(0U << 5);
+    		 delay(LEDDELAY5);
+
+    		 break;
+
+
+    	 case mode4:
+    		 GPIOB->ODR |= (1U << 5);
+    		 delay(LEDDELAY1);
+    		 GPIOB->ODR &=(0U << 5);
+    		 delay(LEDDELAY1);
+
+    		 break;
+
+
+    	 case mode5:
+    		 GPIOB->ODR |= (1U << 5);
+
+    		 break;
+
+    	 }//switch(mode)
+
+    //duration for press and back for the button
+
+    }//while(1)
+
+    return 0;
+}//main funct
+
+void delay(volatile uint32_t s) {
+    for(; s>0; s--);
+}

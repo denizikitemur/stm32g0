@@ -1,0 +1,180 @@
+
+#include "stm32g0xx.h"
+typedef enum keypadButton{keypadBut0 = 0, keypadBut1, keypadBut2, keypadBut3, keypadBut4,
+	keypadBut5, keypadBut6, keypadBut7, keypadBut8, keypadBut9, keypadButA,
+	keypadButB, keypadButC, keypadButD, keypadButHash, keypadButAst, none} keypadBut_t;
+
+
+void setRCCForKeypad() {
+	// A ve B pinlerini aç
+	RCC -> IOPENR |= (3U);
+}
+
+void setMODERForKeypad() {
+	// ROW AYARLARI
+	GPIOB -> MODER &= ~(3U << 4*2);
+	GPIOB -> MODER |= (1U << 4*2);
+
+	GPIOB -> MODER &= ~(3U << 5*2);
+	GPIOB -> MODER |= (1U << 5*2);
+
+	GPIOB -> MODER &= ~(3U << 9*2);
+	GPIOB -> MODER |= (1U << 9*2);
+
+	GPIOB -> MODER &= ~(3U << 8*2);
+	GPIOB -> MODER |= (1U << 8*2);
+
+	//COLUMN (INPUT) AYARLARI
+	GPIOB -> MODER &= ~(3U << 8*2);
+	GPIOB -> MODER &= ~(3U << 2*2);
+	GPIOB -> MODER &= ~(3U << 0*2);
+	GPIOA -> MODER &= ~(3U << 9*2);
+
+	//COLUMN PUPDR AYARLARI
+	GPIOB -> PUPDR |= (2U << 8*2);
+	GPIOB -> PUPDR |= (2U << 2*2);
+	GPIOB -> PUPDR |= (2U << 0*2);
+	GPIOA -> PUPDR |= (2U << 9*2);
+}
+
+void setInterruptForKeypad(){
+	// C1 -> PB8
+	EXTI -> EXTICR[2] |= (1U << 0*8);
+
+	// C2 -> PB2
+	EXTI -> EXTICR[0] |= (1U << 2*8);
+
+	// C3 -> PB0
+	EXTI -> EXTICR[0] |= (1U << 0*8);
+
+	// C4 -> PA9
+	EXTI -> EXTICR[2] |= (0U << 1*8);
+
+	EXTI -> RTSR1 |= (1U << 9);
+	EXTI -> RTSR1 |= (1U << 0);
+	EXTI -> RTSR1 |= (1U << 2);
+	EXTI -> RTSR1 |= (1U << 8);
+
+	EXTI -> IMR1 |= (1U << 9);
+	EXTI -> IMR1 |= (1U << 0);
+	EXTI -> IMR1 |= (1U << 2);
+	EXTI -> IMR1 |= (1U << 8);
+
+	NVIC_SetPriority(EXTI0_1_IRQn, 0);
+	NVIC_EnableIRQ(EXTI0_1_IRQn);
+
+	NVIC_SetPriority(EXTI2_3_IRQn, 0);
+	NVIC_EnableIRQ(EXTI2_3_IRQn);
+
+	NVIC_SetPriority(EXTI4_15_IRQn, 0);
+	NVIC_EnableIRQ(EXTI4_15_IRQn);
+}
+
+void clearAllKeypadRows() {
+	GPIOB -> ODR &= ~((uint16_t) (0x10));
+	GPIOB -> ODR &= ~((uint16_t) (0x20));
+	GPIOB -> ODR &= ~((uint16_t) (0x200));
+	GPIOB -> ODR &= ~((uint16_t) (0x100));
+}
+
+void setAllKeypadRows() {
+	GPIOB -> ODR |= ((uint16_t) (0x10));
+	GPIOB -> ODR |= ((uint16_t) (0x20));
+	GPIOB -> ODR |= ((uint16_t) (0x200));
+	GPIOB -> ODR |= ((uint16_t) (0x100));
+}
+
+keypadBut_t detectButton() {
+	clearAllKeypadRows();
+	keypadBut_t button = none;
+
+	// sadece R1 açık
+	setKeypadRow(1);
+	if(GPIOB -> IDR & ((uint16_t) (0x100))) {
+		//1
+		button = keypadBut1;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x4))) {
+		//2
+		button = keypadBut2;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x1))) {
+		//3
+		button = keypadBut3;
+	} else if(GPIOA -> IDR & ((uint16_t) (0x200))) {
+		//A
+		button = keypadButA;
+	}
+
+	// sadece R2 açık
+	setKeypadRow(2);
+	if(GPIOB -> IDR & ((uint16_t) (0x100))) {
+		//4
+		button = keypadBut4;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x4))) {
+		//5
+		button = keypadBut5;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x1))) {
+		//6
+		button = keypadBut6;
+	} else if(GPIOA -> IDR & ((uint16_t) (0x200))) {
+		//B
+		button = keypadButB;
+	}
+
+	// sadece R3 açık
+	setKeypadRow(3);
+	if(GPIOB -> IDR & ((uint16_t) (0x100))) {
+		//7
+		button = keypadBut7;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x4))) {
+		//8
+		button = keypadBut8;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x1))) {
+		//9
+		button = keypadBut9;
+	} else if(GPIOA -> IDR & ((uint16_t) (0x200))) {
+		//C
+		button = keypadButC;
+	}
+
+	// sadece R4 açık
+	setKeypadRow(4);
+	if(GPIOB -> IDR & ((uint16_t) (0x100))) {
+		//*
+		button = keypadButAst;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x4))) {
+		//0
+		button = keypadBut0;
+	} else if(GPIOB -> IDR & ((uint16_t) (0x1))) {
+		//#
+		button = keypadButHash;
+	} else if(GPIOA -> IDR & ((uint16_t) (0x200))) {
+		//D
+		button = keypadButD;
+	}
+
+	setAllKeypadRows();
+
+	return button;
+}
+
+void setKeypadRow(uint8_t key) {
+	clearAllKeypadRows();
+
+	switch(key){
+	case 1:
+		GPIOB -> ODR |= ((uint16_t) (0x10));
+		break;
+	case 2:
+		GPIOB -> ODR |= ((uint16_t) (0x20));
+		break;
+	case 3:
+		GPIOB -> ODR |= ((uint16_t) (0x200));
+		break;
+	case 4:
+		GPIOB -> ODR |= ((uint16_t) (0x100));
+		break;
+	default:
+
+		break;
+	}
+}

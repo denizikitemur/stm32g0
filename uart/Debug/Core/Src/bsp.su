@@ -1,0 +1,15 @@
+core_cm0plus.h:741:22:__NVIC_EnableIRQ	16	static,ignoring_inline_asm
+core_cm0plus.h:850:22:__NVIC_SetPriority	24	static
+core_cm0plus.h:1056:26:SysTick_Config	16	static
+bsp.c:22:6:system_init	8	static,ignoring_inline_asm
+bsp.c:34:6:onboardLed_Set	8	static
+bsp.c:41:6:onboardLed_TurnOn	8	static
+bsp.c:45:6:onboardLed_TurnOff	8	static
+bsp.c:49:6:onboardLed_Toggle	8	static
+bsp.c:57:6:button_set	8	static
+bsp.c:64:5:button_read	16	static
+bsp.c:72:6:button_interrupt	8	static
+bsp.c:83:6:USART2_IRQHandler	16	static
+bsp.c:89:6:uart_tx	16	static
+bsp.c:95:9:uart_rx	8	static
+bsp.c:105:6:UART_init	16	static

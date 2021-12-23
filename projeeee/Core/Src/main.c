@@ -1,0 +1,176 @@
+#include "stm32g0xx.h"
+#include <math.h>
+#include "bsp.h"
+
+int button;
+void delay(volatile uint32_t);
+volatile int counter = 0;
+int buttonx[4];
+
+void EXTI0_1_IRQHandler() {
+	button = detectButton();
+	EXTI -> RPR1 |= (1 << 0);
+}
+
+void EXTI2_3_IRQHandler() {
+		button = detectButton();
+		EXTI -> RPR1 |= (1 << 2);
+}
+
+void EXTI4_15_IRQHandler() {
+	if ( (EXTI-> RPR1 >> 8) & 1){
+		button = detectButton();
+		EXTI -> RPR1 |= (1 << 8);
+	}
+	if ( (EXTI-> RPR1 >> 9) & 1){
+			button = detectButton();
+			EXTI -> RPR1 |= (1 << 9);
+		}
+}
+
+int main(void) {
+	BSP_systemInit();
+	int amp,freq;
+	button = detectButton(); //
+	if(button==10){ // keypad pressed B or not
+		amp = number(); // making entered data amplitude
+		init_pwma(amp); //setting signal
+		setting1(); //lighting sdd for entered data
+		}
+
+	else if(button==11){ // keypad pressed A or not
+		freq = number();// making entered data frequency
+		init_pwmf(freq); //setting signal
+		setting(); //lighting sdd for entered data
+	}
+    return 0;
+}
+
+int number(void){ //The number function is used to assign an array to entered data.
+	int i=0;
+	int j;
+	button = -1;
+	for( i = 0 ; i < 5 ; i++){
+		button = detectButton();
+	if(button == 0 || button == 1 || button == 2 || button == 3 || button == 4 || button == 5 || button == 6 || button == 7 || button == 8 || button == 9 || button == 10 || button == 11|| button == 12 || button == 13 || button == 14 || button == 15){
+			buttonx[i] = detectButton();
+			dispNumberDigitInSSD((uint8_t) button, (uint8_t) i-1 );
+			button = -1;
+			if(buttonx[i] == 14){
+				goto a1;
+			}
+	}
+	}
+			if(i >= 4){
+		for(j = 0; j < 5; j++){
+						dispNumberDigitInSSD((uint8_t) buttonx[j], (uint8_t) j+1 );
+						delay(1000);
+		}
+		}
+ a1:
+	return ((buttonx[1] * 10^0) + (buttonx[2] * 10^1) + (buttonx[3] * 10^2) + (buttonx[4] * 10^3));
+}
+void init_pwmf(int freq){
+	//WORKING WITH PB3 PIN'S AF2 FUNCTION AS TIM2_CH2
+	//enable gpiob
+	RCC->IOPENR |= (1U << 1);
+	//enable tim2 clock
+	RCC->APBENR1 |= RCC_APBENR1_TIM2EN;
+
+	//select AF from moder
+	GPIOB->MODER &= ~(3U << 2*3);
+	GPIOB->MODER |= (2U << 2*3);
+	//set alternate function 2 // 0010 FOR AF2
+	GPIOB->AFR[0] &= ~(0XFU << 4*3);
+	GPIOB->AFR[0] |= (2U << 4*3);
+
+    // zero out the control register just in case
+	TIM2->CR1 = 0;
+
+    // Select PWM Mode 1
+    TIM2->CCMR1 |= (6U << 12);
+    // Preload Enable
+    TIM2->CCMR1 |= TIM_CCMR1_OC2PE;
+
+    // Capture compare ch2 enable
+    TIM2->CCER |= TIM_CCER_CC2E;
+
+    // zero out counter
+    TIM2->CNT = 0;
+    // 1 ms interrupt
+
+    TIM2->PSC = (3200/freq)-1;
+    TIM2->ARR = 4999;
+
+    // zero out duty
+
+    	for(int i =  0; i<258; i++){
+    		TIM2->CCR2 = i;
+    }
+
+    // Update interrupt enable
+    TIM2->DIER |= (1 << 0);
+
+    // TIM1 Enable
+    TIM2->CR1 |= TIM_CR1_CEN;
+
+    NVIC_SetPriority(TIM2_IRQn, 1);
+    NVIC_EnableIRQ(TIM2_IRQn);
+
+}
+
+void init_pwma(int amp ){
+	//WORKING WITH PB3 PIN'S AF2 FUNCTION AS TIM2_CH2
+	//enable gpiob
+	RCC->IOPENR |= (1U << 1);
+	//enable tim2 clock
+	RCC->APBENR1 |= RCC_APBENR1_TIM2EN;
+
+	//select AF from moder
+	GPIOB->MODER &= ~(3U << 2*3);
+	GPIOB->MODER |= (2U << 2*3);
+	//set alternate function 2 // 0010 FOR AF2
+	GPIOB->AFR[0] &= ~(0XFU << 4*3);
+	GPIOB->AFR[0] |= (2U << 4*3);
+
+    // zero out the control register just in case
+	TIM2->CR1 = 0;
+
+    // Select PWM Mode 1
+    TIM2->CCMR1 |= (6U << 12);
+    // Preload Enable
+    TIM2->CCMR1 |= TIM_CCMR1_OC2PE;
+
+    // Capture compare ch2 enable
+    TIM2->CCER |= TIM_CCER_CC2E;
+
+    // zero out counter
+    TIM2->CNT = 0;
+    // 1 ms interrupt
+
+    TIM2->PSC = 63;
+    TIM2->ARR = 4999;
+
+    // zero out duty
+
+
+    for(int i=0; i<(amp*5*10^3); i++){
+    	TIM2->CCR2 = i;
+    }
+
+    // Update interrupt enable
+    TIM2->DIER |= (1 << 0);
+
+    // TIM1 Enable
+    TIM2->CR1 |= TIM_CR1_CEN;
+
+    NVIC_SetPriority(TIM2_IRQn, 1);
+    NVIC_EnableIRQ(TIM2_IRQn);
+
+}
+void TIM2_IRQHandler(void){
+
+	TIM2->SR &= ~(1U << 0);
+}
+
+

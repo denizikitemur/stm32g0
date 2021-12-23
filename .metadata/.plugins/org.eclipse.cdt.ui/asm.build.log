@@ -1,0 +1,12 @@
+10:35:42 **** Build of configuration Debug for project asm ****
+make -j8 all 
+arm-none-eabi-gcc -mcpu=cortex-m0plus -g3 -c -x assembler-with-cpp -MMD -MP -MF"asm.d" -MT"asm.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "asm.o" "../asm.s"
+../asm.s:9:10: fatal error: stm32g0xx.h: No such file or directory
+    9 | #include "stm32g0xx.h"
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make: *** [subdir.mk:19: asm.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+
+10:35:42 Build Failed. 2 errors, 0 warnings. (took 471ms)
+
